@@ -18,11 +18,11 @@
 <div class="app-shell">
   <aside class="sidebar" aria-label="Workspace sidebar">
     <div class="sidebar-brand"><div class="brandmark">R</div><div class="brand-copy"><strong>RAG Workspace</strong><span>Analysis console</span></div></div>
-    <div class="sidebar-nav" aria-label="Workspace areas">
-      <div class="nav-item active"><span class="nav-icon">⌂</span><span>Workspace</span></div>
-      <div class="nav-item"><span class="nav-icon">▤</span><span>Documents</span></div>
-      <div class="nav-item"><span class="nav-icon">◎</span><span>Evidence</span></div>
-    </div>
+    <nav class="sidebar-nav" aria-label="Workspace areas">
+      <button class="nav-item active" data-target="workspace" type="button"><span class="nav-icon">⌂</span><span>Workspace</span></button>
+      <button class="nav-item" data-target="documents" type="button"><span class="nav-icon">▤</span><span>Documents</span></button>
+      <button class="nav-item" data-target="evidence" type="button"><span class="nav-icon">◎</span><span>Evidence</span></button>
+    </nav>
     <section class="docs">
       <div class="section-title"><div><span class="eyebrow">Knowledge base</span><h2>Documents</h2></div><label class="upload" title="Upload document">＋<input id="fileInput" type="file" accept=".pdf,.docx,.txt,.md" hidden /></label></div>
       <p id="uploadStatus" class="status hidden"></p><ul id="docList" class="doclist"></ul>
