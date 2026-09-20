@@ -136,6 +136,10 @@ class Services:
         self.registry.save_text(
             document_id, [{"page": p.page_number, "text": p.text} for p in parsed.pages]
         )
+        self.registry.save_chunks(
+            document_id,
+            [{"chunk_id": c.chunk_id, "text": c.text, "metadata": c.metadata} for c in chunks],
+        )
         sections = []
         for chunk in chunks:
             section = str(chunk.metadata.get("section") or "").strip()
