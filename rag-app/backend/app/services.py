@@ -61,7 +61,7 @@ class Services:
     # -- lifecycle ---------------------------------------------------------
     async def startup(self) -> None:
         await self.groq.startup()
-        self.rebuild_lexical_index()
+        self.rebuild_indexes()
         self.load_samples()
         log_event(
             "startup",
