@@ -469,7 +469,8 @@ async function init() {
     const cite = e.target.closest("[data-cite]");
     if (cite) jumpToCitation(cite.dataset.cite);
   });
-  document.querySelector(".sidebar-nav").addEventListener("click", (e) => {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.querySelector(".sidebar-nav").addEventListener("click", (e) => {
     const btn = e.target.closest(".nav-item");
     if (!btn) return;
     document.querySelectorAll(".nav-item").forEach((n) => n.classList.toggle("active", n === btn));
@@ -478,10 +479,14 @@ async function init() {
     if (target === "documents") $("fileInput").closest(".docs").scrollIntoView({ behavior: "smooth", block: "nearest" });
     $(target === "documents" ? "workflow" : target)?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (target === "workspace" || target === "workflow") $("queryInput").focus();
-    document.querySelector(".sidebar").classList.add("collapsed");
+    sidebar.classList.add("collapsed");
+    sidebar.classList.remove("revealed");
   });
-  document.querySelector(".sidebar-brand").addEventListener("click", () => {
-    document.querySelector(".sidebar").classList.toggle("collapsed");
+  sidebar.addEventListener("mouseenter", () => { if (sidebar.classList.contains("collapsed")) sidebar.classList.add("revealed"); });
+  sidebar.addEventListener("mouseleave", () => sidebar.classList.remove("revealed"));
+  sidebar.querySelector(".sidebar-brand").addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+    sidebar.classList.remove("revealed");
   });
 
   $("queryInput").focus();
