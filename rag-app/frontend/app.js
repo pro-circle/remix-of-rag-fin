@@ -288,6 +288,7 @@ async function ask() {
   if (query.length < 2) return toast("Type a question first.", true);
   if (state.busy) return;
   state.busy = true; $("askBtn").disabled = true; $("askBtn").textContent = "…";
+  $("queryInput").value = ""; $("queryInput").focus();
 
   state.answer = ""; state.chunks = [];
   $("userMessage").textContent = query;
@@ -447,6 +448,16 @@ async function init() {
     $("previewToggle").textContent = document.querySelector(".preview").classList.contains("collapsed") ? "⌄" : "⌃";
   };
   $("queryInput").onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } };
+
+  document.querySelector(".sidebar-nav").addEventListener("click", (e) => {
+    const btn = e.target.closest(".nav-item");
+    if (!btn) return;
+    document.querySelectorAll(".nav-item").forEach((n) => n.classList.toggle("active", n === btn));
+    const target = btn.dataset.target;
+    if (target === "evidence") { $("tabEvidence").checked = true; document.querySelector(".context-rail")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    else if (target === "documents") document.querySelector(".docs")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    else { document.querySelector(".workflow")?.scrollIntoView({ behavior: "smooth", block: "start" }); $("queryInput").focus(); }
+  });
 
   document.addEventListener("click", async (e) => {
     const t = e.target.closest("[data-example],[data-open],[data-del],[data-cite]");
