@@ -37,7 +37,32 @@ class DocumentRegistry:
             doc = self._docs.pop(document_id, None)
             if doc:
                 self._flush()
+        for path in (self._text_path(document_id), self._chunk_path(document_id)):
+            try:
+                path.unlink()
+            except OSError:
+                pass
         return doc
+
+    # -- chunk persistence (source of truth for rebuilding the indexes) -----
+    def _text_path(self, document_id: str) -> Path:
+        return self.path.parent / f"{document_id}.json"
+
+    def _chunk_path(self, document_id: str) -> Path:
+        return self.path.parent / f"{document_id}.chunks.json"
+
+    def save_chunks(self, document_id: str, chunks: list[dict]) -> None:
+        self._chunk_path(document_id).write_text(json.dumps(chunks, indent=2))
+
+    def load_chunks(self, document_id: str) -> list[dict]:
+        p = self._chunk_path(document_id)
+        if not p.exists():
+            return []
+        try:
+            rows = json.loads(p.read_text())
+        except ValueError:
+            return []
+        return rows if isinstance(rows, list) else []
 
     def save_text(self, document_id: str, pages: list[dict]) -> None:
         (self.path.parent / f"{document_id}.json").write_text(json.dumps(pages, indent=2))

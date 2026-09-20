@@ -61,7 +61,7 @@ class Services:
     # -- lifecycle ---------------------------------------------------------
     async def startup(self) -> None:
         await self.groq.startup()
-        self.rebuild_lexical_index()
+        self.rebuild_indexes()
         self.load_samples()
         log_event(
             "startup",
@@ -74,15 +74,53 @@ class Services:
     async def shutdown(self) -> None:
         await self.groq.shutdown()
 
-    def rebuild_lexical_index(self) -> None:
-        """BM25 lives in memory; rebuild it from persisted chunks at startup."""
+    def rebuild_indexes(self) -> None:
+        """Rebuild BM25 (always in memory) and the vector store from persisted chunks.
+
+        Chunks are persisted by the registry, so retrieval survives a restart even
+        when the vector store itself is the in-memory fallback (no chromadb installed).
+        """
         from .chunking.semantic import Chunk
 
         for doc in self.registry.all():
-            stored = self.vector_store.get_document_chunks(doc["document_id"])
-            self.lexical.add_documents(
-                [Chunk(chunk_id=c.chunk_id, text=c.text, metadata=c.metadata) for c in stored]
-            )
+            document_id = doc["document_id"]
+            rows = self.registry.load_chunks(document_id)
+            if not rows:
+                # Legacy documents: recover whatever the vector store still holds.
+                rows = [
+                    {"chunk_id": c.chunk_id, "text": c.text, "metadata": c.metadata}
+                    for c in self.vector_store.get_document_chunks(document_id)
+                ]
+                if rows:
+                    self.registry.save_chunks(document_id, rows)
+            if not rows:
+                # Nothing recoverable: re-ingest from the stored upload, else drop
+                # the entry so the UI never lists an unsearchable document.
+                stored = self.settings.upload_dir / doc.get("stored_name", "")
+                if stored.exists():
+                    try:
+                        self.ingest_file(
+                            stored.read_bytes(), doc["name"], is_sample=doc.get("is_sample", False)
+                        )
+                        self.registry.delete(document_id)
+                        log_event("document_reindexed", document_id=document_id)
+                        continue
+                    except Exception as exc:
+                        log_event("reindex_failed", document_id=document_id, error=type(exc).__name__)
+                self.registry.delete(document_id)
+                log_event("index_rebuild_empty", document_id=document_id)
+                continue
+
+            chunks = [
+                Chunk(chunk_id=r["chunk_id"], text=r["text"], metadata=dict(r.get("metadata") or {}))
+                for r in rows
+            ]
+            self.lexical.add_documents(chunks)
+            if not self.vector_store.get_document_chunks(document_id):
+                self.vector_store.add_documents(
+                    chunks, self.embedder.embed_documents([c.text for c in chunks])
+                )
+            log_event("index_rebuilt", document_id=document_id, chunks=len(chunks))
 
     def load_samples(self) -> None:
         sample_dir = Path(__file__).resolve().parents[2] / "sample_data"
@@ -111,6 +149,10 @@ class Services:
         self.lexical.add_documents(chunks)
         self.registry.save_text(
             document_id, [{"page": p.page_number, "text": p.text} for p in parsed.pages]
+        )
+        self.registry.save_chunks(
+            document_id,
+            [{"chunk_id": c.chunk_id, "text": c.text, "metadata": c.metadata} for c in chunks],
         )
         sections = []
         for chunk in chunks:
