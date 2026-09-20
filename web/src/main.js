@@ -478,6 +478,10 @@ async function init() {
     if (target === "documents") $("fileInput").closest(".docs").scrollIntoView({ behavior: "smooth", block: "nearest" });
     $(target === "documents" ? "workflow" : target)?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (target === "workspace" || target === "workflow") $("queryInput").focus();
+    document.querySelector(".sidebar").classList.add("collapsed");
+  });
+  document.querySelector(".sidebar-brand").addEventListener("click", () => {
+    document.querySelector(".sidebar").classList.toggle("collapsed");
   });
 
   $("queryInput").focus();
