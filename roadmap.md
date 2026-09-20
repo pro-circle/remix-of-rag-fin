@@ -5,6 +5,8 @@
 - [x] Keep one default document and create file-derived suggested questions.
 - [x] Convert asking and generation into a chat-style flow.
 - [x] Load document previews page-by-page and stream answer text incrementally.
-- [x] Validate the build, syntax, live preview, and full Python test suite.
-- [x] Replace the Brutalist Pop dashboard with the selected Cloud White focused-sidebar workspace.
-- [x] Final visual pass: wrapped suggestion chips, placeholder metric rows, build + tests + browser check.
+- [x] Replace the Brutalist Pop dashboard with the Cloud White focused-sidebar workspace.
+- [x] Move to a browser-only Vite build with Groq keys from VITE_ variables.
+- [x] Verify the production build and the live page in a browser (chat, upload, evidence, navigation, clear chat).
+- [x] Fix the workflow strip so the generation stage resolves on completion and marks failures.
+- [x] Write the summary of tools, stack, workflow, RAG type and deliverables (DOCUMENTATION.md).
