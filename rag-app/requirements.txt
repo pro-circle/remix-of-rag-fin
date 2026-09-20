@@ -1,13 +1,15 @@
+# Core runtime — everything the API needs to start and serve requests.
+# Total install is a few MB; no ML frameworks, no model downloads.
 fastapi>=0.115
-uvicorn[standard]>=0.30
+uvicorn>=0.30          # plain server; uvicorn[standard] pulls in extra C deps
 pydantic>=2.7
-python-multipart>=0.0.9
+python-multipart>=0.0.9  # file uploads
 python-dotenv>=1.0
-httpx>=0.27
-pypdf>=4.2
-python-docx>=1.1
-sentence-transformers>=3.0
-chromadb>=0.5
-rank-bm25>=0.2.2
-tiktoken>=0.7
-pytest>=8.0
+httpx>=0.27            # Groq API client
+pypdf>=4.2             # PDF parsing
+python-docx>=1.1       # DOCX parsing
+rank-bm25>=0.2.2       # tiny; pure-python BM25 (a fallback exists if missing)
+
+# Optional accelerators (neural embeddings, Chroma vector store, exact token
+# counts) live in requirements-optional.txt — the app runs without them using
+# built-in fallbacks. Test/dev-only deps live in requirements-dev.txt.
