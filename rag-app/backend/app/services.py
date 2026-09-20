@@ -102,6 +102,7 @@ class Services:
                         self.ingest_file(
                             stored.read_bytes(), doc["name"], is_sample=doc.get("is_sample", False)
                         )
+                        self.registry.delete(document_id)
                         log_event("document_reindexed", document_id=document_id)
                         continue
                     except Exception as exc:
