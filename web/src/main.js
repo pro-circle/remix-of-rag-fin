@@ -344,10 +344,13 @@ async function ask(question) {
       } else if (event === "generation_complete") setStage("generate", ms(data.duration_ms));
       else if (event === "error") {
         body.innerHTML = `<p class="msg error">${esc(data.message)}</p>`;
+        const pending = document.querySelector(".stage.active");
+        if (pending) { pending.className = "stage failed"; pending.querySelector("span").textContent = "stopped"; }
         $("stageNote").textContent = "Stopped.";
         toast(data.message, true);
         return;
       } else if (event === "query_complete") {
+        setStage("generate", ms(data.latency.llm_ms));
         body.innerHTML = renderMarkdown(data.answer);
         renderCitations(node.querySelector(".citations"), data.citations);
         if (data.chunks?.length) renderChunks(data.chunks);
