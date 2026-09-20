@@ -76,7 +76,18 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --app-dir backend --port 8000
 ```
 
-First start downloads the embedding model (`all-MiniLM-L6-v2`, ~90 MB) once.
+`requirements.txt` is intentionally light (a few MB, no ML frameworks). Optional
+upgrades are separate:
+
+```bash
+pip install -r requirements-optional.txt   # neural embeddings + Chroma + tiktoken (~2 GB)
+pip install -r requirements-dev.txt        # core + pytest + reportlab
+```
+
+Without the optional set the app still runs end to end: a deterministic hashing
+embedder replaces sentence-transformers, an in-memory store replaces Chroma, and
+token counts fall back to a character estimate. With it installed, first start
+downloads the embedding model (`all-MiniLM-L6-v2`, ~90 MB) once.
 Sample documents are ingested automatically at startup, so you can query immediately.
 
 Tests:
@@ -84,6 +95,7 @@ Tests:
 ```bash
 python -m pytest tests -q      # 40 tests, no network and no model download required
 ```
+
 
 The suite uses a deterministic hashing embedder, so it runs fully offline.
 
