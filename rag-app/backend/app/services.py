@@ -94,6 +94,19 @@ class Services:
                 if rows:
                     self.registry.save_chunks(document_id, rows)
             if not rows:
+                # Nothing recoverable: re-ingest from the stored upload, else drop
+                # the entry so the UI never lists an unsearchable document.
+                stored = self.settings.upload_dir / doc.get("stored_name", "")
+                if stored.exists():
+                    try:
+                        self.ingest_file(
+                            stored.read_bytes(), doc["name"], is_sample=doc.get("is_sample", False)
+                        )
+                        log_event("document_reindexed", document_id=document_id)
+                        continue
+                    except Exception as exc:
+                        log_event("reindex_failed", document_id=document_id, error=type(exc).__name__)
+                self.registry.delete(document_id)
                 log_event("index_rebuild_empty", document_id=document_id)
                 continue
 
