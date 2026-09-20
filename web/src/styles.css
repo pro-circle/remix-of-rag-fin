@@ -60,6 +60,8 @@ section.workflow{padding:16px 18px}
 .stage{flex:0 0 auto;min-width:140px;padding:9px 12px;border:1px solid var(--border);border-radius:12px;background:var(--soft)}
 .stage.active{border-color:var(--primary);background:var(--accent)}
 .stage.done{border-color:#bfdbfe}
+.stage.failed{border-color:var(--danger);background:#fdf1f0}
+.stage.failed span{color:var(--danger)}
 .stage strong{display:block;font-size:.76rem}
 .stage span{font-size:.68rem;color:var(--muted);overflow-wrap:anywhere}
 
